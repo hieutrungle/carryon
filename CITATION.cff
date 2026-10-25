@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Carry-On: Learning What to Keep Under a Context Budget"
+authors:
+  - family-names: Le
+    given-names: Hieu
+version: 0.0.1
+license: MIT
+repository-code: "https://github.com/hieutrungle/carryon"

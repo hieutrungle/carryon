@@ -1,0 +1,47 @@
+[project]
+name = "carryon"
+version = "0.0.1"
+description = "Learning what to keep under a context budget: RL-trained context management for LLM agents."
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+license = "MIT"
+authors = [{ name = "Hieu Le" }]
+dependencies = [
+    "pydantic>=2.9,<3",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+# GPU stack (torch, vllm, trl, unsloth, peft, bm25s, openenv/verifiers) is pinned in M0
+# after the container smoke test on the 5070 Ti, A100 and A40 (docs/roadmap/M0.md, M0.8).
+train = []
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "ruff>=0.7",
+    "mypy>=1.13",
+    "types-PyYAML",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["carryon"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+packages = ["carryon"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

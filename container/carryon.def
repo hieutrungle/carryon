@@ -1,0 +1,28 @@
+# Apptainer image shared by FASTER (A100/A40) and the local RTX 5070 Ti.
+# UNTESTED until M0.9. Build: apptainer build carryon.sif container/carryon.def  (from the repo root)
+# CUDA 12.8+ is needed for Blackwell (sm_120); A100 (sm_80) and A40 (sm_86) run it if the
+# node driver is >= 570. Check `nvidia-smi` on both machines before the first build.
+Bootstrap: docker
+From: nvidia/cuda:12.8.1-cudnn-devel-ubuntu22.04
+
+%files
+    pyproject.toml /opt/carryon/pyproject.toml
+    uv.lock /opt/carryon/uv.lock
+    README.md /opt/carryon/README.md
+    .python-version /opt/carryon/.python-version
+
+%environment
+    export PATH=/opt/venv/bin:$PATH
+    export UV_PROJECT_ENVIRONMENT=/opt/venv
+
+%post
+    apt-get update && apt-get install -y --no-install-recommends git curl ca-certificates \
+        && rm -rf /var/lib/apt/lists/*
+    curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin sh
+    cd /opt/carryon
+    # The package itself is bind-mounted from the repo at run time (PYTHONPATH), so only deps go in.
+    UV_PROJECT_ENVIRONMENT=/opt/venv UV_PYTHON_INSTALL_DIR=/opt/python \
+        uv sync --frozen --extra train --no-install-project --no-dev
+
+%test
+    python -c "import pydantic, yaml; print('carryon image ok')"

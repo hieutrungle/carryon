@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+build/
+
+# Logged runs and generated outputs (released as archives, rebuilt by make)
+runs/*
+!runs/.gitkeep
+figures/*
+!figures/.gitkeep
+report/build/
+logs/*
+!logs/slurm/
+logs/slurm/*
+!logs/slurm/.gitkeep
+
+# Heavy artifacts: never in git (see docs/sync.md)
+checkpoints/
+*.safetensors
+*.bin
+*.pt
+*.gguf
+*.sif
+indexes/
+hf_cache/
+wandb/
+.env
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store

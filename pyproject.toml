@@ -8,6 +8,7 @@ license = "MIT"
 authors = [{ name = "Hieu Le" }]
 dependencies = [
     "pydantic>=2.9,<3",
+    "pydantic-settings>=2.7,<3",
     "pyyaml>=6.0",
 ]
 

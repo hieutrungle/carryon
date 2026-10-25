@@ -132,6 +132,14 @@ def test_jsonl_round_trip(tmp_path: Path) -> None:
     assert list(read_episodes(path)) == episodes
 
 
+def test_gzip_round_trip(tmp_path: Path) -> None:
+    path = tmp_path / "trajectories.jsonl.gz"
+    episodes = [make_episode(), make_episode(episode_id="ep-1")]
+    for episode in episodes:
+        append_episode(path, episode)
+    assert list(read_episodes(path)) == episodes
+
+
 def test_sampled_ids_survive_where_retokenization_would_not(tmp_path: Path) -> None:
     sampled = [VOCAB["hell"], VOCAB["o"]]
     # The hazard: decoding and re-encoding the sampled text yields different ids.

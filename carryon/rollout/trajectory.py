@@ -21,10 +21,11 @@ Phase B cost study.
 
 from __future__ import annotations
 
+import gzip
 import itertools
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Annotated, Literal
+from typing import Annotated, Literal, TextIO
 
 from pydantic import (
     BaseModel,
@@ -185,13 +186,13 @@ class Episode(_Record):
 
 def append_episode(path: Path, episode: Episode) -> None:
     """Append one episode as a JSONL line; the rollout loop calls this once per episode."""
-    with path.open("a", encoding="utf-8") as f:
+    with _open_text(path, "a") as f:
         f.write(episode.model_dump_json() + "\n")
 
 
 def read_episodes(path: Path) -> Iterator[Episode]:
-    """Yield episodes from a JSONL file; a bad line fails loudly with its line number."""
-    with path.open(encoding="utf-8") as f:
+    """Yield episodes from a .jsonl or .jsonl.gz file; a bad line fails with its line number."""
+    with _open_text(path, "r") as f:
         for line_no, line in enumerate(f, start=1):
             if not line.strip():
                 continue
@@ -199,3 +200,12 @@ def read_episodes(path: Path) -> Iterator[Episode]:
                 yield Episode.model_validate_json(line)
             except ValidationError as err:
                 raise ValueError(f"{path}:{line_no}: not a valid episode") from err
+
+
+def _open_text(path: Path, mode: Literal["r", "a"]) -> TextIO:
+    # Finished runs are gzipped (carryon.run.finish_run); the suffix alone decides.
+    if path.suffix == ".gz":
+        if mode == "r":
+            return gzip.open(path, "rt", encoding="utf-8")
+        return gzip.open(path, "at", encoding="utf-8")
+    return path.open(mode, encoding="utf-8")

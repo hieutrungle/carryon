@@ -1,0 +1,33 @@
+# M0.11: toy GRPO run to test job templates, checkpointing and kill-and-resume.
+# Short on purpose: 60 steps, a checkpoint every 20.
+kind: grpo
+model: Qwen/Qwen3.5-4B
+seed: 0
+task:
+  kind: toy_arithmetic
+  n_prompts: 2048
+  max_operand: 99
+  seed: 0
+lora:
+  r: 16
+  alpha: 32
+  dropout: 0.0
+  target_modules: all-linear
+grpo:
+  learning_rate: 1.0e-5
+  max_steps: 60
+  per_device_train_batch_size: 8
+  gradient_accumulation_steps: 1
+  num_generations: 8
+  max_completion_length: 16
+  temperature: 1.0
+  beta: 0.0
+  logging_steps: 1
+vllm:
+  mode: colocate
+  gpu_memory_utilization: 0.3
+  max_model_len: 256
+  importance_sampling_correction: true
+checkpoint:
+  save_steps: 20
+  save_total_limit: 2

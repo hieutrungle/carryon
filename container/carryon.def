@@ -22,8 +22,9 @@ From: nvidia/cuda:13.0.3-cudnn-devel-ubuntu22.04
     curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin sh
     cd /opt/carryon
     # The package itself is bind-mounted from the repo at run time (PYTHONPATH), so only deps go in.
-    UV_PROJECT_ENVIRONMENT=/opt/venv UV_PYTHON_INSTALL_DIR=/opt/python \
-        uv sync --frozen --extra train --no-install-project --no-dev
+    # --no-cache keeps uv's download cache (several GB of wheels) out of the image.
+    UV_PROJECT_ENVIRONMENT=/opt/venv UV_PYTHON_INSTALL_DIR=/opt/python UV_LINK_MODE=copy \
+        uv sync --frozen --extra train --no-install-project --no-dev --no-cache
 
 %test
     # Build-time test runs without a GPU; unsloth refuses to import without one, so M0.9 checks

@@ -16,16 +16,21 @@ set -euo pipefail
 CONFIG="${1:?usage: sbatch slurm/server_2gpu.sbatch <config.yaml>}"
 source slurm/common.sh
 
-CUDA_VISIBLE_DEVICES=0 run_in_container python scripts/serve_vllm.py --config "$CONFIG" --port 8000 &
+PORT=$(run_in_container python -c \
+    "from pathlib import Path; from carryon.config import load_config; print(load_config(Path('$CONFIG')).vllm.server_port)")
+
+CUDA_VISIBLE_DEVICES=0 run_in_container python scripts/serve_vllm.py --config "$CONFIG" &
 SERVER_PID=$!
 trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
 
-# Wait up to 15 minutes for the server before starting the trainer.
+# Wait up to 15 minutes for the server (TRL's client polls the same /health endpoint).
 for _ in $(seq 180); do
-    curl -sf http://127.0.0.1:8000/health/ >/dev/null && break
+    curl -sf "http://127.0.0.1:$PORT/health" >/dev/null && break
+    kill -0 "$SERVER_PID" 2>/dev/null || { echo "vLLM server exited" >&2; exit 1; }
     sleep 5
 done
-curl -sf http://127.0.0.1:8000/health/ >/dev/null || { echo "vLLM server never became healthy" >&2; exit 1; }
+curl -sf "http://127.0.0.1:$PORT/health" >/dev/null || { echo "vLLM server never became healthy" >&2; exit 1; }
 
+# Resume: RUN_DIR=runs/<run_id> sbatch ... continues that run from its latest checkpoint.
 CUDA_VISIBLE_DEVICES=1 run_in_container python scripts/train_grpo.py \
-    --config "$CONFIG" --vllm-mode server --vllm-port 8000 --resume auto
+    --config "$CONFIG" --vllm-mode server ${RUN_DIR:+--run-dir "$RUN_DIR"}

@@ -1,5 +1,5 @@
 # Thin wrappers around uv; every target works on a fresh clone after `make install`.
-.PHONY: install test lint format typecheck check figures reproduce-figures report clean
+.PHONY: install test lint format typecheck check figures reproduce-figures report container clean
 
 install:
 	uv sync --locked
@@ -32,6 +32,14 @@ reproduce-figures: figures
 # Chapters + figures/ -> one self-contained report/build/report.html (run `make figures` first).
 report:
 	uv run python -m carryon.viz.report
+
+# Build the Apptainer image next to the repo (needs sudo; temp files go to carryon-data, not /tmp).
+DATA ?= ../carryon-data
+SIF ?= $(DATA)/sif/carryon.sif
+container:
+	mkdir -p $(DATA)/sif $(DATA)/cache/apptainer-tmp
+	sudo APPTAINER_TMPDIR=$(abspath $(DATA))/cache/apptainer-tmp apptainer build --force $(SIF) container/carryon.def
+	@ls -lh $(SIF)
 
 clean:
 	rm -rf report/build .pytest_cache .mypy_cache .ruff_cache

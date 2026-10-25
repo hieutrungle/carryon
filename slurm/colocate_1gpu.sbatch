@@ -16,5 +16,6 @@ set -euo pipefail
 CONFIG="${1:?usage: sbatch slurm/colocate_1gpu.sbatch <config.yaml>}"
 source slurm/common.sh
 
-# Resume is automatic: the trainer picks up the latest checkpoint in the run directory.
-run_in_container python scripts/train_grpo.py --config "$CONFIG" --vllm-mode colocate --resume auto
+# Resume: RUN_DIR=runs/<run_id> sbatch ... continues that run from its latest checkpoint.
+run_in_container python scripts/train_grpo.py --config "$CONFIG" --vllm-mode colocate \
+    ${RUN_DIR:+--run-dir "$RUN_DIR"}

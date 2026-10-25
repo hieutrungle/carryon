@@ -18,4 +18,4 @@ SEED="${SLURM_ARRAY_TASK_ID:?submit with --array}"
 source slurm/common.sh
 
 run_in_container python scripts/train_grpo.py --config "$CONFIG" --seed "$SEED" \
-    --vllm-mode colocate --resume auto
+    --vllm-mode colocate

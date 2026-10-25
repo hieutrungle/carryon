@@ -164,3 +164,12 @@ work; check `showquota` first, HF caches create many files). Compute nodes then 
 - No heavy computation on the login node: git, rsync, downloads and `sbatch` only. Everything else goes through Slurm.
 - Account `142788516569`, partition `gpu`, `--gres=gpu:a100:N` preferred, `a40` acceptable (both 128 SU per GPU-hour).
 - Submit from the repo root so `logs/slurm/` and relative config paths resolve.
+- Every `srun`/`sbatch` needs `--nodes`, `--ntasks` or `--ntasks-per-node` (FASTER's submit filter rejects it otherwise).
+- Containers run with SingularityCE (`/usr/bin/singularity`) on compute nodes only; there is no `apptainer` command or module.
+- Home is 10 GB / 10k files, so keep every cache on scratch. In `~/.bashrc` on FASTER:
+
+  ```bash
+  export UV_CACHE_DIR=/scratch/user/hieult/research/carryon-data/cache/uv
+  export SINGULARITY_CACHEDIR=/scratch/user/hieult/research/carryon-data/cache/singularity
+  export HF_HOME=/scratch/user/hieult/research/carryon-data/hf
+  ```

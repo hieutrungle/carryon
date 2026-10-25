@@ -17,9 +17,14 @@ fi
 echo "carryon git $(git rev-parse HEAD) on $(hostname), job ${SLURM_JOB_ID:-none}"
 nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader || true
 
-# TODO(M0.11): confirm whether FASTER needs `module load` before apptainer is on PATH.
+# FASTER compute nodes ship SingularityCE (/usr/bin/singularity, no module, not on login nodes);
+# the local machine uses Apptainer. Both run the same .sif with the same flags.
+CONTAINER_CMD="$(command -v apptainer || command -v singularity)" || {
+    echo "no apptainer or singularity on PATH (container commands only work on compute nodes)" >&2
+    exit 1
+}
 run_in_container() {
-    apptainer exec --nv \
+    "$CONTAINER_CMD" exec --nv \
         --bind "$CARRYON_DATA" --bind "$PWD" --pwd "$PWD" \
         --env PYTHONPATH="$PWD" \
         "$CARRYON_SIF" "$@"

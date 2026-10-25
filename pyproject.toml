@@ -7,27 +7,45 @@ requires-python = ">=3.11,<3.13"
 license = "MIT"
 authors = [{ name = "Hieu Le" }]
 dependencies = [
+    "markdown>=3.7",
+    "matplotlib>=3.9",
     "pydantic>=2.9,<3",
     "pydantic-settings>=2.7,<3",
     "pyyaml>=6.0",
 ]
 
 [project.optional-dependencies]
-# GPU stack (torch, vllm, trl, unsloth, peft, bm25s, openenv/verifiers) is pinned in M0
-# after the container smoke test on the 5070 Ti, A100 and A40 (docs/roadmap/M0.md, M0.8).
-train = []
+# GPU stack, pinned exactly (decision 002): change only between milestones, then rerun the
+# container smoke test. CUDA 13.0 wheels; needs driver >= 580. The environment library
+# (OpenEnv or verifiers) is chosen and pinned in M1.
+train = [
+    "torch==2.13.0",
+    "vllm==0.32.0",
+    "trl==1.15.0",
+    "unsloth==2026.10.8",
+    "unsloth-zoo==2026.10.8",
+    "transformers==5.17.0",
+    "peft==0.21.2",
+    "bm25s==0.3.15",
+]
 
 [dependency-groups]
 dev = [
     "pytest>=8.3",
     "ruff>=0.7",
     "mypy>=1.13",
+    "tokenizers>=0.23.2",
+    "types-Markdown",
     "types-PyYAML",
 ]
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.uv]
+# vLLM ships Linux wheels only; both machines and CI are Linux x86-64.
+environments = ["sys_platform == 'linux' and platform_machine == 'x86_64'"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["carryon"]

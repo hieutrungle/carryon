@@ -7,3 +7,4 @@ A superseded decision stays in place with `Status: superseded by NNN`.
 | --- | --- | --- |
 | [000](000-repo-name-layout-environment.md) | Repo name, layout and environment | accepted |
 | [001](001-task-and-budget.md) | Why this task and budget | accepted (check at Gate 1) |
+| [002](002-gpu-stack-and-job-type.md) | Pinned GPU stack, smoke test and default job type | draft (part 2 at M0.13) |

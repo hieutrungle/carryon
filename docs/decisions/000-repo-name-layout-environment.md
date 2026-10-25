@@ -12,7 +12,8 @@ FASTER cluster (A100/A40), with one pinned environment. Facts checked on 2026-10
 
 - FASTER compute nodes have SingularityCE 4.4.1 at `/usr/bin/singularity`; there is no `apptainer`
   command or module, and no container runtime on login nodes.
-- GPU drivers: local 595.99.02, FASTER A40 and A100 580.126.20 (all ≥ 570, enough for CUDA 12.8).
+- GPU drivers: local 595.99.02, FASTER A40 and A100 580.126.20 (all ≥ 580, enough for the
+  CUDA 13.0 image of decision 002).
 - FASTER scratch allows 2M files and about 680k are free; home is 10 GB / 10k files.
 - An image built locally with Apptainer runs under SingularityCE with `--nv` on a FASTER A40.
 

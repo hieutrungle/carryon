@@ -20,7 +20,8 @@ typecheck:
 
 check: lint typecheck test
 
-# One script per figure ID in carryon/viz/fig_*.py; each reads runs/ and writes figures/<ID>.{png,svg}.
+# One script per figure ID in carryon/viz/fig_*.py; each reads runs/ and writes
+# figures/<ID>.{png,svg,inputs.json}.
 figures:
 	@scripts=$$(ls carryon/viz/fig_*.py 2>/dev/null); \
 	if [ -z "$$scripts" ]; then echo "no figure scripts yet"; fi; \
@@ -28,10 +29,9 @@ figures:
 
 reproduce-figures: figures
 
+# Chapters + figures/ -> one self-contained report/build/report.html (run `make figures` first).
 report:
-	mkdir -p report/build
-	cat report/chapter_0.md report/chapter_A.md report/chapter_B.md report/chapter_C.md > report/build/report.md
-	@echo "wrote report/build/report.md"
+	uv run python -m carryon.viz.report
 
 clean:
 	rm -rf report/build .pytest_cache .mypy_cache .ruff_cache
